@@ -1,0 +1,103 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  Industrial Blue-Gray Theme
+  --------------------------
+  A cool, low-saturation palette suited to plant / operations dashboards:
+  deep slate-navy surfaces, steel-gray supporting tones, and a restrained
+  amber accent reserved for alerts and key data points.
+  All values are HSL triplets (no `hsl()` wrapper) so Tailwind can compose
+  them with opacity modifiers, e.g. bg-primary/50.
+*/
+
+@layer base {
+  :root {
+    --background: 210 20% 98%;
+    --foreground: 215 35% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 215 35% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 35% 12%;
+
+    --primary: 213 55% 20%;
+    --primary-foreground: 210 20% 98%;
+
+    --secondary: 214 20% 92%;
+    --secondary-foreground: 215 35% 15%;
+
+    --muted: 214 20% 93%;
+    --muted-foreground: 215 15% 42%;
+
+    --accent: 32 70% 49%;
+    --accent-foreground: 215 35% 12%;
+
+    --destructive: 0 72% 45%;
+    --destructive-foreground: 210 20% 98%;
+
+    --border: 214 20% 88%;
+    --input: 214 20% 88%;
+    --ring: 213 55% 30%;
+
+    --sidebar: 215 40% 11%;
+    --sidebar-foreground: 210 25% 90%;
+    --sidebar-border: 215 35% 18%;
+
+    --status-safe: 152 55% 35%;
+    --status-warning: 38 92% 50%;
+    --status-critical: 0 72% 45%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 215 40% 9%;
+    --foreground: 210 25% 92%;
+
+    --card: 215 38% 12%;
+    --card-foreground: 210 25% 92%;
+
+    --popover: 215 38% 12%;
+    --popover-foreground: 210 25% 92%;
+
+    --primary: 210 60% 70%;
+    --primary-foreground: 215 40% 10%;
+
+    --secondary: 215 25% 18%;
+    --secondary-foreground: 210 25% 92%;
+
+    --muted: 215 25% 18%;
+    --muted-foreground: 215 15% 65%;
+
+    --accent: 32 70% 55%;
+    --accent-foreground: 215 40% 10%;
+
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 210 25% 92%;
+
+    --border: 215 25% 20%;
+    --input: 215 25% 20%;
+    --ring: 210 60% 60%;
+
+    --sidebar: 215 45% 7%;
+    --sidebar-foreground: 210 25% 90%;
+    --sidebar-border: 215 35% 15%;
+
+    --status-safe: 152 45% 45%;
+    --status-warning: 38 85% 55%;
+    --status-critical: 0 65% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "cv11", "ss01";
+  }
+}
