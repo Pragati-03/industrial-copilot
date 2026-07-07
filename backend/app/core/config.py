@@ -26,6 +26,11 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str = "sqlite:///./industrial_ki.db"
 
+    # Document uploads
+    UPLOAD_DIR: str = "uploads"
+    MAX_UPLOAD_SIZE_MB: int = 50
+    ALLOWED_EXTENSIONS: str = ".pdf,.png,.jpg,.jpeg,.webp,.gif,.docx,.txt"
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
@@ -36,6 +41,10 @@ class Settings(BaseSettings):
     @property
     def cors_origins_list(self) -> List[str]:
         return [origin.strip() for origin in self.CORS_ORIGINS.split(",") if origin.strip()]
+
+    @property
+    def allowed_extensions_list(self) -> List[str]:
+        return [ext.strip().lower() for ext in self.ALLOWED_EXTENSIONS.split(",") if ext.strip()]
 
 
 @lru_cache
