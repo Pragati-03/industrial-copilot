@@ -20,9 +20,13 @@ const navItems = [
   { to: "/compliance", label: "Compliance", icon: ShieldCheck },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  onNavigate?: () => void;
+}
+
+export function Sidebar({ onNavigate }: SidebarProps) {
   return (
-    <aside className="hidden w-64 shrink-0 border-r border-sidebar-border bg-sidebar text-sidebar-foreground md:flex md:flex-col">
+    <aside className="flex h-full w-64 shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
       <div className="flex h-16 items-center gap-2 px-5">
         <div className="flex h-8 w-8 items-center justify-center rounded-md bg-accent text-accent-foreground">
           <Factory className="h-4.5 w-4.5" />
@@ -39,6 +43,7 @@ export function Sidebar() {
             key={to}
             to={to}
             end={end}
+            onClick={onNavigate}
             className={({ isActive }) =>
               cn(
                 "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
