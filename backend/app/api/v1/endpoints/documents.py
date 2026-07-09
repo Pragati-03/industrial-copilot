@@ -1,3 +1,14 @@
+"""
+Document endpoints.
+
+- POST   /documents             upload one or more files, save to disk,
+                                 run OCR/text extraction, persist metadata
+- GET    /documents              list all documents (most recent first)
+- GET    /documents/{id}/text    fetch just the extracted text for one document
+- POST   /documents/{id}/ocr     re-run OCR/text extraction for one document
+- DELETE /documents/{id}         remove a document's file and database row
+"""
+
 import uuid
 from pathlib import Path
 from typing import List, Optional
@@ -9,7 +20,8 @@ from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.db.session import get_db
 from app.models.document import Document
-from app.schemas.document import DocumentOut, DocumentUploadResult
+from app.schemas.document import DocumentOut, DocumentUploadResult, OcrTextOut
+from app.services.ocr import OcrError, extract_text
 
 router = APIRouter()
 
@@ -31,6 +43,42 @@ def _validate_file(filename: str, size_bytes: int) -> str:
         raise ValueError("File is empty")
 
     return ext
+
+
+def _run_ocr(document: Document, db: Session) -> None:
+    """
+    Runs text extraction for a document and persists the result in place.
+    Never raises -- failures are captured on ocr_status / ocr_error so a
+    bad file never breaks the upload response.
+    """
+    document.ocr_status = "processing"
+    db.add(document)
+    db.commit()
+
+    file_path = UPLOAD_DIR / document.stored_filename
+
+    try:
+        result = extract_text(file_path, document.extension)
+    except OcrError as exc:
+        document.ocr_status = "error"
+        document.ocr_error = str(exc)
+        db.add(document)
+        db.commit()
+        return
+    except Exception as exc:
+        document.ocr_status = "error"
+        document.ocr_error = f"Unexpected error: {exc}"
+        db.add(document)
+        db.commit()
+        return
+
+    document.extracted_text = result.text
+    document.page_count = result.page_count
+    document.ocr_status = "done"
+    document.ocr_error = None
+    db.add(document)
+    db.commit()
+    db.refresh(document)
 
 
 @router.post("", response_model=List[DocumentUploadResult])
@@ -72,10 +120,13 @@ async def upload_documents(
             extension=ext,
             size_bytes=len(raw),
             status="uploaded",
+            ocr_status="pending",
         )
         db.add(document)
         db.commit()
         db.refresh(document)
+
+        _run_ocr(document, db)
 
         results.append(
             DocumentUploadResult(
@@ -92,6 +143,24 @@ async def upload_documents(
 def list_documents(db: Session = Depends(get_db)) -> List[Document]:
     stmt = select(Document).order_by(Document.uploaded_at.desc())
     return list(db.execute(stmt).scalars().all())
+
+
+@router.get("/{document_id}/text", response_model=OcrTextOut)
+def get_document_text(document_id: int, db: Session = Depends(get_db)) -> Document:
+    document: Optional[Document] = db.get(Document, document_id)
+    if document is None:
+        raise HTTPException(status_code=404, detail="Document not found")
+    return document
+
+
+@router.post("/{document_id}/ocr", response_model=DocumentOut)
+def rerun_ocr(document_id: int, db: Session = Depends(get_db)) -> Document:
+    document: Optional[Document] = db.get(Document, document_id)
+    if document is None:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    _run_ocr(document, db)
+    return document
 
 
 @router.delete("/{document_id}", status_code=204)

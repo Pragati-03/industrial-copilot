@@ -2,7 +2,7 @@
 Application configuration.
 
 Settings are loaded from environment variables (and a local .env file
-during development). No business logic lives here — configuration only.
+during development). No business logic lives here -- configuration only.
 """
 
 from functools import lru_cache
@@ -30,6 +30,11 @@ class Settings(BaseSettings):
     UPLOAD_DIR: str = "uploads"
     MAX_UPLOAD_SIZE_MB: int = 50
     ALLOWED_EXTENSIONS: str = ".pdf,.png,.jpg,.jpeg,.webp,.gif,.docx,.txt"
+
+    # OCR / text extraction
+    # Leave blank on Linux/Mac if tesseract is on PATH. On Windows, set to
+    # something like: C:\Program Files\Tesseract-OCR\tesseract.exe
+    TESSERACT_CMD: str = ""
 
     model_config = SettingsConfigDict(
         env_file=".env",
