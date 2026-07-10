@@ -8,8 +8,16 @@ alembic==1.13.2
 httpx==0.27.2
 python-multipart==0.0.9
 
+# OCR / text extraction
 PyMuPDF>=1.25.0
-rapidocr-onnxruntime==1.3.24
+rapidocr-onnxruntime
+numpy
 Pillow==10.4.0
 python-docx==1.1.2
-numpy
+
+# AI Copilot (RAG: LangChain + FAISS + Gemini)
+langchain
+langchain-community
+langchain-text-splitters
+langchain-google-genai
+faiss-cpu

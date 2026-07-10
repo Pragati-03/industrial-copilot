@@ -32,9 +32,16 @@ class Settings(BaseSettings):
     ALLOWED_EXTENSIONS: str = ".pdf,.png,.jpg,.jpeg,.webp,.gif,.docx,.txt"
 
     # OCR / text extraction
-    # Leave blank on Linux/Mac if tesseract is on PATH. On Windows, set to
-    # something like: C:\Program Files\Tesseract-OCR\tesseract.exe
     TESSERACT_CMD: str = ""
+
+    # AI Copilot (RAG: LangChain + FAISS + Gemini)
+    GOOGLE_API_KEY: str = ""
+    GEMINI_CHAT_MODEL: str = "gemini-1.5-flash"
+    GEMINI_EMBEDDING_MODEL: str = "models/embedding-001"
+    FAISS_INDEX_DIR: str = "faiss_index"
+    CHUNK_SIZE: int = 1000
+    CHUNK_OVERLAP: int = 150
+    RETRIEVAL_TOP_K: int = 5
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -54,7 +61,6 @@ class Settings(BaseSettings):
 
 @lru_cache
 def get_settings() -> Settings:
-    """Cached settings instance so .env is parsed only once."""
     return Settings()
 
 

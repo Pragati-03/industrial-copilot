@@ -1,11 +1,10 @@
 """
 Document model.
 
-Represents a single uploaded file's metadata, plus the results of OCR /
-text extraction: `extracted_text`, `ocr_status`, `ocr_error`, and
-`page_count`. The binary content itself lives on disk under
-`settings.UPLOAD_DIR`; this row tracks everything needed to list,
-display, search, and delete it.
+Tracks upload metadata, OCR extraction results, and AI Copilot embedding
+status. The binary file lives on disk under settings.UPLOAD_DIR; chunk
+vectors live in the FAISS index under settings.FAISS_INDEX_DIR. This row
+ties both together.
 """
 
 from datetime import datetime, timezone
@@ -37,8 +36,12 @@ class Document(Base):
     uploaded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
 
     # --- OCR / text extraction -------------------------------------------
-    # "pending" | "processing" | "done" | "error"
     ocr_status: Mapped[str] = mapped_column(String(20), nullable=False, default="pending")
     extracted_text: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     page_count: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     ocr_error: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+
+    # --- AI Copilot / RAG embedding ---------------------------------------
+    embedding_status: Mapped[str] = mapped_column(String(20), nullable=False, default="pending")
+    embedding_error: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    chunk_count: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)

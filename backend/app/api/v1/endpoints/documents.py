@@ -2,11 +2,13 @@
 Document endpoints.
 
 - POST   /documents             upload one or more files, save to disk,
-                                 run OCR/text extraction, persist metadata
+                                 run OCR/text extraction, embed into FAISS,
+                                 persist metadata
 - GET    /documents              list all documents (most recent first)
 - GET    /documents/{id}/text    fetch just the extracted text for one document
 - POST   /documents/{id}/ocr     re-run OCR/text extraction for one document
-- DELETE /documents/{id}         remove a document's file and database row
+- POST   /documents/{id}/embed   re-run embedding for one document
+- DELETE /documents/{id}         remove a document's file, FAISS chunks, and DB row
 """
 
 import uuid
@@ -22,6 +24,7 @@ from app.db.session import get_db
 from app.models.document import Document
 from app.schemas.document import DocumentOut, DocumentUploadResult, OcrTextOut
 from app.services.ocr import OcrError, extract_text
+from app.services.vectorstore import VectorStoreError, add_document_chunks, remove_document
 
 router = APIRouter()
 
@@ -46,11 +49,6 @@ def _validate_file(filename: str, size_bytes: int) -> str:
 
 
 def _run_ocr(document: Document, db: Session) -> None:
-    """
-    Runs text extraction for a document and persists the result in place.
-    Never raises -- failures are captured on ocr_status / ocr_error so a
-    bad file never breaks the upload response.
-    """
     document.ocr_status = "processing"
     db.add(document)
     db.commit()
@@ -76,6 +74,43 @@ def _run_ocr(document: Document, db: Session) -> None:
     document.page_count = result.page_count
     document.ocr_status = "done"
     document.ocr_error = None
+    db.add(document)
+    db.commit()
+    db.refresh(document)
+
+
+def _run_embedding(document: Document, db: Session) -> None:
+    if not document.extracted_text or not document.extracted_text.strip():
+        document.embedding_status = "error"
+        document.embedding_error = "No extracted text to embed (run OCR first)"
+        db.add(document)
+        db.commit()
+        return
+
+    document.embedding_status = "processing"
+    db.add(document)
+    db.commit()
+
+    try:
+        chunk_count = add_document_chunks(
+            document.id, document.original_filename, document.extracted_text
+        )
+    except VectorStoreError as exc:
+        document.embedding_status = "error"
+        document.embedding_error = str(exc)
+        db.add(document)
+        db.commit()
+        return
+    except Exception as exc:
+        document.embedding_status = "error"
+        document.embedding_error = f"Unexpected error: {exc}"
+        db.add(document)
+        db.commit()
+        return
+
+    document.embedding_status = "done"
+    document.embedding_error = None
+    document.chunk_count = chunk_count
     db.add(document)
     db.commit()
     db.refresh(document)
@@ -121,12 +156,15 @@ async def upload_documents(
             size_bytes=len(raw),
             status="uploaded",
             ocr_status="pending",
+            embedding_status="pending",
         )
         db.add(document)
         db.commit()
         db.refresh(document)
 
         _run_ocr(document, db)
+        if document.ocr_status == "done":
+            _run_embedding(document, db)
 
         results.append(
             DocumentUploadResult(
@@ -163,6 +201,16 @@ def rerun_ocr(document_id: int, db: Session = Depends(get_db)) -> Document:
     return document
 
 
+@router.post("/{document_id}/embed", response_model=DocumentOut)
+def rerun_embedding(document_id: int, db: Session = Depends(get_db)) -> Document:
+    document: Optional[Document] = db.get(Document, document_id)
+    if document is None:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    _run_embedding(document, db)
+    return document
+
+
 @router.delete("/{document_id}", status_code=204)
 def delete_document(document_id: int, db: Session = Depends(get_db)) -> None:
     document: Optional[Document] = db.get(Document, document_id)
@@ -172,6 +220,11 @@ def delete_document(document_id: int, db: Session = Depends(get_db)) -> None:
     file_path = UPLOAD_DIR / document.stored_filename
     if file_path.exists():
         file_path.unlink()
+
+    try:
+        remove_document(document_id)
+    except Exception:
+        pass
 
     db.delete(document)
     db.commit()

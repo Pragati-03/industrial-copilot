@@ -22,6 +22,10 @@ class DocumentOut(BaseModel):
     page_count: Optional[int] = None
     ocr_error: Optional[str] = None
 
+    embedding_status: str
+    embedding_error: Optional[str] = None
+    chunk_count: Optional[int] = None
+
 
 class DocumentUploadResult(BaseModel):
     filename: str
