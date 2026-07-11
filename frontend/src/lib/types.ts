@@ -25,3 +25,33 @@ export interface UploadJob {
   results?: UploadResult[];
   error?: string;
 }
+
+export type GraphNodeType =
+  | "document"
+  | "equipment"
+  | "machine"
+  | "engineer"
+  | "date"
+  | "event"
+  | "failure";
+
+export interface GraphNode {
+  id: string;
+  type: GraphNodeType;
+  label: string;
+  document_id?: number;
+}
+
+export interface GraphEdge {
+  source: string;
+  target: string;
+  relation: string;
+  weight: number;
+  document_id?: number;
+}
+
+export interface GraphData {
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+  stats: { node_count: number; edge_count: number };
+}

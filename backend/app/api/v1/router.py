@@ -6,7 +6,7 @@ Single aggregation point for all `/api/v1/*` routes.
 
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import copilot, documents
+from app.api.v1.endpoints import copilot, documents, knowledge_graph
 
 api_router = APIRouter()
 
@@ -19,3 +19,6 @@ def ping() -> dict:
 
 api_router.include_router(documents.router, prefix="/documents", tags=["documents"])
 api_router.include_router(copilot.router, prefix="/copilot", tags=["copilot"])
+api_router.include_router(
+    knowledge_graph.router, prefix="/knowledge-graph", tags=["knowledge-graph"]
+)
