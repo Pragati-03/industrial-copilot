@@ -55,3 +55,37 @@ export interface GraphData {
   edges: GraphEdge[];
   stats: { node_count: number; edge_count: number };
 }
+
+export type SeverityLevel = "Low" | "Medium" | "High" | "Critical";
+
+export interface EntityMention {
+  label: string;
+  document_id: number;
+  filename: string;
+}
+
+export interface DocumentRef {
+  document_id: number;
+  filename: string;
+}
+
+export interface MaintenanceInsight {
+  equipment_id: string;
+  equipment_label: string;
+  equipment_type: "equipment" | "machine";
+  is_recurring: boolean;
+  failure_count: number;
+  distinct_failure_types: string[];
+  failures: EntityMention[];
+  events: EntityMention[];
+  engineers: string[];
+  documents: DocumentRef[];
+  last_event_date: string | null;
+  root_cause: string;
+  preventive_recommendation: string;
+  severity: SeverityLevel;
+  severity_reason: string;
+  next_inspection_date: string | null;
+  confidence: "Low" | "Medium" | "High";
+  ai_generated: boolean;
+}

@@ -24,3 +24,5 @@ faiss-cpu
 
 # Knowledge Graph
 networkx
+
+python-dateutil

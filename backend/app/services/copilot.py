@@ -1,6 +1,11 @@
 """
 AI Copilot: retrieval-augmented question answering over ingested
 documents, using Gemini (via LangChain) for answer generation.
+
+Flow: question -> similarity search in FAISS -> build context from the
+top-k retrieved chunks -> Gemini generates an answer grounded in that
+context -> return the answer plus the source chunks used, so the caller
+can show citations.
 """
 
 from __future__ import annotations
@@ -48,6 +53,15 @@ def _get_chat_model() -> ChatGoogleGenerativeAI:
             temperature=0.2,
         )
     return _chat_model
+
+
+def get_chat_model() -> ChatGoogleGenerativeAI:
+    """
+    Public accessor so other services (e.g. maintenance intelligence)
+    can reuse the same Gemini chat model instance instead of creating
+    their own.
+    """
+    return _get_chat_model()
 
 
 PROMPT_TEMPLATE = """You are an industrial knowledge assistant. Answer the question using ONLY the context below, which was retrieved from the plant's own documents. If the context doesn't contain enough information to answer, say so plainly instead of guessing.

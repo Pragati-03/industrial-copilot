@@ -6,7 +6,7 @@ Single aggregation point for all `/api/v1/*` routes.
 
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import copilot, documents, knowledge_graph
+from app.api.v1.endpoints import copilot, documents, knowledge_graph, maintenance
 
 api_router = APIRouter()
 
@@ -22,3 +22,4 @@ api_router.include_router(copilot.router, prefix="/copilot", tags=["copilot"])
 api_router.include_router(
     knowledge_graph.router, prefix="/knowledge-graph", tags=["knowledge-graph"]
 )
+api_router.include_router(maintenance.router, prefix="/maintenance", tags=["maintenance"])
