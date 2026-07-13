@@ -15,6 +15,31 @@ export async function fetchMaintenanceInsights(onlyRecurring = false): Promise<M
   return res.json();
 }
 
+export async function fetchComplianceReport(): Promise<ComplianceReport> {
+  const res = await fetch(`${API_BASE}/compliance/report`);
+  if (!res.ok) throw new Error("Failed to load compliance report");
+  return res.json();
+}
+
+export async function downloadComplianceReportPdf(): Promise<void> {
+  const res = await fetch(`${API_BASE}/compliance/report/download`);
+  if (!res.ok) throw new Error("Failed to download compliance report");
+
+  const blob = await res.blob();
+  const disposition = res.headers.get("content-disposition") ?? "";
+  const match = disposition.match(/filename="?([^"]+)"?/);
+  const filename = match?.[1] ?? "compliance-report.pdf";
+
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.URL.revokeObjectURL(url);
+}
+
 export async function fetchKnowledgeGraph(documentId?: number): Promise<GraphData> {
   const url = new URL(`${API_BASE}/knowledge-graph`);
   if (documentId !== undefined) {

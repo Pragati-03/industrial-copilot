@@ -89,3 +89,30 @@ export interface MaintenanceInsight {
   confidence: "Low" | "Medium" | "High";
   ai_generated: boolean;
 }
+
+export interface ComplianceMatch {
+  document_id: number;
+  filename: string;
+  snippet: string;
+}
+
+export interface ComplianceItem {
+  rule_id: string;
+  category: string;
+  title: string;
+  description: string;
+  risk_level: SeverityLevel;
+  compliant: boolean;
+  matches: ComplianceMatch[];
+}
+
+export interface ComplianceReport {
+  generated_at: string;
+  documents_analyzed: DocumentRef[];
+  compliance_score: number;
+  overall_risk_level: SeverityLevel;
+  compliant_items: ComplianceItem[];
+  missing_items: ComplianceItem[];
+  summary: string;
+  ai_generated_summary: boolean;
+}

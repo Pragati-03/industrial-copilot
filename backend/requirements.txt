@@ -26,3 +26,5 @@ faiss-cpu
 networkx
 
 python-dateutil
+
+reportlab
