@@ -8,6 +8,7 @@ import { Copilot } from "@/pages/Copilot";
 import { Maintenance } from "@/pages/Maintenance";
 import { Compliance } from "@/pages/Compliance";
 import { NotFound } from "@/pages/NotFound";
+import { Analytics } from "@/pages/Analytics";
 
 /**
  * All application routes are declared here in one place.
@@ -24,6 +25,7 @@ export function AppRoutes() {
         <Route path="copilot" element={<Copilot />} />
         <Route path="maintenance" element={<Maintenance />} />
         <Route path="compliance" element={<Compliance />} />
+        <Route path="analytics" element={<Analytics />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

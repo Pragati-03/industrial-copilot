@@ -7,6 +7,7 @@ import {
   Wrench,
   ShieldCheck,
   Factory,
+  BarChart3,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -18,6 +19,7 @@ const navItems = [
   { to: "/copilot", label: "Expert Copilot", icon: Bot },
   { to: "/maintenance", label: "Maintenance & RCA", icon: Wrench },
   { to: "/compliance", label: "Compliance", icon: ShieldCheck },
+  { to: "/analytics", label: "Analytics", icon: BarChart3 },
 ];
 
 interface SidebarProps {
@@ -31,9 +33,14 @@ export function Sidebar({ onNavigate }: SidebarProps) {
         <div className="flex h-8 w-8 items-center justify-center rounded-md bg-accent text-accent-foreground">
           <Factory className="h-4.5 w-4.5" />
         </div>
+
         <div className="leading-tight">
-          <p className="text-sm font-semibold tracking-tight">Industrial KI</p>
-          <p className="text-[11px] text-sidebar-foreground/60">Operations Brain</p>
+          <p className="text-sm font-semibold tracking-tight">
+            Industrial KI
+          </p>
+          <p className="text-[11px] text-sidebar-foreground/60">
+            Operations Brain
+          </p>
         </div>
       </div>
 
@@ -54,7 +61,7 @@ export function Sidebar({ onNavigate }: SidebarProps) {
             }
           >
             <Icon className="h-4 w-4" />
-            {label}
+            <span>{label}</span>
           </NavLink>
         ))}
       </nav>
