@@ -1,1 +1,0 @@
-Compressor C-12 Maintenance Notes. Engineer S. Rao performed lubrication on Compressor C-12 on January 5, 2026. Bearing failure was identified as the root cause.

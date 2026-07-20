@@ -1,4 +1,6 @@
 export type DocumentStatus = "uploaded" | "processing" | "error";
+export type OcrStatus = "pending" | "processing" | "done" | "error";
+export type EmbeddingStatus = "pending" | "processing" | "done" | "error";
 
 export interface DocumentRecord {
   id: number;
@@ -8,6 +10,13 @@ export interface DocumentRecord {
   size_bytes: number;
   status: DocumentStatus;
   uploaded_at: string;
+  ocr_status: OcrStatus;
+  extracted_text?: string | null;
+  page_count?: number | null;
+  ocr_error?: string | null;
+  embedding_status: EmbeddingStatus;
+  embedding_error?: string | null;
+  chunk_count?: number | null;
 }
 
 export interface UploadResult {
@@ -26,14 +35,7 @@ export interface UploadJob {
   error?: string;
 }
 
-export type GraphNodeType =
-  | "document"
-  | "equipment"
-  | "machine"
-  | "engineer"
-  | "date"
-  | "event"
-  | "failure";
+export type GraphNodeType = "document" | "equipment" | "machine" | "engineer" | "date" | "event" | "failure";
 
 export interface GraphNode {
   id: string;
@@ -115,4 +117,25 @@ export interface ComplianceReport {
   missing_items: ComplianceItem[];
   summary: string;
   ai_generated_summary: boolean;
+}
+
+export interface CopilotSource {
+  document_id: number;
+  filename: string;
+  chunk_index: number;
+  snippet: string;
+  score: number;
+}
+
+export interface CopilotAnswer {
+  answer: string;
+  sources: CopilotSource[];
+}
+
+export interface ChatMessage {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  sources?: CopilotSource[];
+  isError?: boolean;
 }

@@ -1,13 +1,6 @@
 import { NavLink } from "react-router-dom";
 import {
-  LayoutDashboard,
-  FileStack,
-  Share2,
-  Bot,
-  Wrench,
-  ShieldCheck,
-  Factory,
-  BarChart3,
+  LayoutDashboard, FileStack, Share2, Bot, Wrench, ShieldCheck, Factory, BarChart3,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -33,14 +26,9 @@ export function Sidebar({ onNavigate }: SidebarProps) {
         <div className="flex h-8 w-8 items-center justify-center rounded-md bg-accent text-accent-foreground">
           <Factory className="h-4.5 w-4.5" />
         </div>
-
         <div className="leading-tight">
-          <p className="text-sm font-semibold tracking-tight">
-            Industrial KI
-          </p>
-          <p className="text-[11px] text-sidebar-foreground/60">
-            Operations Brain
-          </p>
+          <p className="text-sm font-semibold tracking-tight">Industrial KI</p>
+          <p className="text-[11px] text-sidebar-foreground/60">Operations Brain</p>
         </div>
       </div>
 
@@ -54,20 +42,18 @@ export function Sidebar({ onNavigate }: SidebarProps) {
             className={({ isActive }) =>
               cn(
                 "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                isActive
-                  ? "bg-white/10 text-white"
-                  : "text-sidebar-foreground/70 hover:bg-white/5 hover:text-white"
+                isActive ? "bg-white/10 text-white" : "text-sidebar-foreground/70 hover:bg-white/5 hover:text-white"
               )
             }
           >
             <Icon className="h-4 w-4" />
-            <span>{label}</span>
+            {label}
           </NavLink>
         ))}
       </nav>
 
       <div className="px-5 py-4 text-[11px] text-sidebar-foreground/50">
-        v0.1.0 · Phase 1 Scaffold
+        v1.0.0 · All modules integrated
       </div>
     </aside>
   );

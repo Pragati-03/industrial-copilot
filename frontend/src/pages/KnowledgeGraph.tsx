@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { RefreshCw, Share2 } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -7,43 +7,29 @@ import { GraphCanvas } from "@/components/knowledge-graph/GraphCanvas";
 import { GraphLegend } from "@/components/knowledge-graph/GraphLegend";
 import { NodeDetailPanel } from "@/components/knowledge-graph/NodeDetailPanel";
 import { NODE_TYPE_ORDER } from "@/components/knowledge-graph/nodeConfig";
+import { LoadingState } from "@/components/shared/LoadingState";
+import { ErrorBanner } from "@/components/shared/ErrorBanner";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { useFetch } from "@/hooks/useFetch";
 import { fetchKnowledgeGraph } from "@/lib/api";
-import type { GraphData, GraphNode, GraphNodeType } from "@/lib/types";
+import type { GraphNode, GraphNodeType } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 export function KnowledgeGraph() {
-  const [data, setData] = useState<GraphData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [activeTypes, setActiveTypes] = useState<Set<GraphNodeType>>(
-    new Set(NODE_TYPE_ORDER)
+  const { data, loading, error, reload } = useFetch(
+    () => fetchKnowledgeGraph(),
+    [],
+    "Could not load the knowledge graph. Is the backend running?"
   );
+
+  const [activeTypes, setActiveTypes] = useState<Set<GraphNodeType>>(new Set(NODE_TYPE_ORDER));
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const graph = await fetchKnowledgeGraph();
-      setData(graph);
-      setError(null);
-    } catch {
-      setError("Could not load the knowledge graph. Is the backend running?");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    load();
-  }, [load]);
 
   function toggleType(type: GraphNodeType) {
     setActiveTypes((prev) => {
       const next = new Set(prev);
-      if (next.has(type)) {
-        next.delete(type);
-      } else {
-        next.add(type);
-      }
+      if (next.has(type)) next.delete(type);
+      else next.add(type);
       return next;
     });
   }
@@ -52,25 +38,19 @@ export function KnowledgeGraph() {
     <div className="mx-auto flex h-full max-w-6xl flex-col gap-4">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-            Knowledge Graph
-          </h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Knowledge Graph</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Equipment, engineers, dates, maintenance events, and failure types extracted from
-            your documents, connected by co-occurrence.
+            Equipment, engineers, dates, maintenance events, and failure types extracted from your
+            documents, connected by co-occurrence.
           </p>
         </div>
-        <Button variant="outline" size="sm" onClick={load} disabled={loading} className="gap-1.5">
-          <RefreshCw className={loading ? "h-3.5 w-3.5 animate-spin" : "h-3.5 w-3.5"} />
+        <Button variant="outline" size="sm" onClick={reload} disabled={loading} className="gap-1.5">
+          <RefreshCw className={cn("h-3.5 w-3.5", loading && "animate-spin")} />
           Refresh
         </Button>
       </div>
 
-      {error && (
-        <p className="rounded-md border border-status-critical/30 bg-status-critical/10 px-3 py-2 text-sm text-status-critical">
-          {error}
-        </p>
-      )}
+      {error && <ErrorBanner message={error} onRetry={reload} />}
 
       {data && (
         <div className="flex items-center justify-between gap-4">
@@ -83,19 +63,10 @@ export function KnowledgeGraph() {
 
       <Card className="relative flex-1 overflow-hidden">
         <CardContent className="h-full p-0">
-          {loading && !data && (
-            <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-              Loading graph…
-            </div>
-          )}
+          {loading && !data && <LoadingState message="Loading graph…" />}
 
           {data && data.nodes.length === 0 && (
-            <div className="flex h-full flex-col items-center justify-center gap-2 text-center">
-              <Share2 className="h-8 w-8 text-muted-foreground/40" />
-              <p className="text-sm text-muted-foreground">
-                No entities found yet. Upload and OCR a document to populate the graph.
-              </p>
-            </div>
+            <EmptyState icon={Share2} message="No entities found yet. Upload and OCR a document to populate the graph." />
           )}
 
           {data && data.nodes.length > 0 && (
@@ -103,11 +74,7 @@ export function KnowledgeGraph() {
           )}
 
           {selectedNode && data && (
-            <NodeDetailPanel
-              node={selectedNode}
-              data={data}
-              onClose={() => setSelectedNode(null)}
-            />
+            <NodeDetailPanel node={selectedNode} data={data} onClose={() => setSelectedNode(null)} />
           )}
         </CardContent>
       </Card>

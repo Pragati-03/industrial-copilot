@@ -7,14 +7,9 @@ import { KnowledgeGraph } from "@/pages/KnowledgeGraph";
 import { Copilot } from "@/pages/Copilot";
 import { Maintenance } from "@/pages/Maintenance";
 import { Compliance } from "@/pages/Compliance";
-import { NotFound } from "@/pages/NotFound";
 import { Analytics } from "@/pages/Analytics";
+import { NotFound } from "@/pages/NotFound";
 
-/**
- * All application routes are declared here in one place.
- * `AppShell` provides the persistent sidebar/topbar layout for every
- * route nested under it.
- */
 export function AppRoutes() {
   return (
     <Routes>

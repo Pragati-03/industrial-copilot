@@ -1,8 +1,8 @@
 import { StatCards } from "@/components/dashboard/Statcards";
-import { RecentActivityPanel } from "@/components/dashboard/RecentActivityPanel";
+import { RecentDocumentsPanel } from "@/components/dashboard/RecentDocumentsPanel";
 import { UploadStatusCard } from "@/components/dashboard/UploadStatusCard";
 import { CopilotQuickAccess } from "@/components/dashboard/CopilotQuickAccess";
-import { AnalyticsPanels } from "@/components/dashboard/AnalyticsPanel";
+import { AnalyticsPanels } from "@/components/dashboard/AnalyticsPanels";
 
 export function Dashboard() {
   return (
@@ -27,7 +27,7 @@ export function Dashboard() {
         <div className="xl:col-span-2">
           <AnalyticsPanels />
         </div>
-        <RecentActivityPanel />
+        <RecentDocumentsPanel />
       </div>
     </div>
   );
